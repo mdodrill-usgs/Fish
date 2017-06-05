@@ -26,6 +26,9 @@ data.dir = paste(str.dir, "/Data", sep = "")
 # M: drive and using Glen's export tool, write a new sqlite database
 
 
+# Need to add a check to see if the database already exists (with the same name)
+# before making a new one!!!!
+
 update.db = function(){
   require(RSQLite)
   require(dplyr)
@@ -117,9 +120,13 @@ update.db = function(){
 
 
 #-----------------------------------------------------------------------------#
-get.fish.dat = function(){
+get.fish.dat = function(update.db = FALSE){
   library(RSQLite)
   library(dplyr)
+  
+  if(update.db == TRUE){
+    update.db()
+  }
   
   # path to sqlite db (there should only be one db in the folder)
   db.name = list.files(path = data.dir, pattern = ".sqlite3")
