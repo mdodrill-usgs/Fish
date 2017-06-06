@@ -29,9 +29,6 @@ update.db = function(){
   require(RSQLite)
   require(dplyr)
   
-  # data.dir = paste(str.dir, "/Data", sep = "")
-  # common_wd = paste(str.dir, "/Data", sep = "")
-  
   db.dir = "M:/DATABASE/BIOLOGICAL/FISH/DATABASE_BACKUPS"
   
   if(dir.exists(path = db.dir) == FALSE){
@@ -99,6 +96,8 @@ update.db = function(){
   
   db.name = paste(data.dir, "/my_db_", the.one.date, ".sqlite3", sep = "")
   
+  # Could add some data formatting stuff here, before the tables are written to the db...
+  
   # create a blank database 
   my_db <- src_sqlite(db.name, create = T)
   
@@ -110,20 +109,6 @@ update.db = function(){
   file.remove(file.name)
   file.remove(file.name.2)
   
-  
-  # dat$DriftDate = strptime(dat$DriftDate, format = "%m/%d/%Y")
-  # 
-  # # fix the times
-  # tmp = strptime(dat$TimeBegin, format = "%m/%d/%Y %H:%M:%S")
-  # 
-  # dat$TimeBegin = strftime(tmp, format = "%R")
-  
-  # remove redflag col for now (if not, this will trip off the template check later)
-  # dat2 = dat[,seq(1,c(ncol(dat) - 2))]
-  
-  # write.csv(dat2, file = file.name, row.names = F)
-  
-  #-----------------------------------------------------------------------------#
   message("MD: Update Successful")
   return()
 }
@@ -143,6 +128,12 @@ get.fish.dat = function(update.db = FALSE){
   db.name = list.files(path = data.dir, pattern = ".sqlite3")
   my_path = paste(data.dir, db.name, sep = "/")
   
+  # check to see if there's a db in the data folder, if not, then create one
+  if(file.exists(my_path) == FALSE){
+    message("MD: No sqlite database exists, so making a new one.")
+    update.db()
+  }
+   
   # connect to db
   my_db = src_sqlite(path = my_path, create = FALSE)
   
