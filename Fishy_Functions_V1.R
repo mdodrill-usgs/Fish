@@ -132,6 +132,10 @@ get.fish.dat = function(update.db = FALSE){
   if(file.exists(my_path) == FALSE){
     message("MD: No sqlite database exists, so making a new one.")
     update.db()
+    
+    # need these to be updated
+    db.name = list.files(path = data.dir, pattern = ".sqlite3")
+    my_path = paste(data.dir, db.name, sep = "/")
   }
    
   # connect to db
