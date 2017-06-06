@@ -25,10 +25,6 @@ data.dir = paste(str.dir, "/Data", sep = "")
 # this function will update the fish data by finding the access database on the
 # M: drive and using Glen's export tool, write a new sqlite database
 
-
-# Need to add a check to see if the database already exists (with the same name)
-# before making a new one!!!!
-
 update.db = function(){
   require(RSQLite)
   require(dplyr)
@@ -42,18 +38,25 @@ update.db = function(){
     return(message("MD: Can't find the database!, Are you connected to the M drive?"))
   }
   
-  
   all.files = list.files(path = db.dir, pattern = ".mdb")
   
-  # find the most recent db
+  # find the most recent db on the M drive
   the.one = sort(all.files)[length(all.files)]
   the.one.date = substr(the.one, 30, nchar(the.one) - 4)
   
   db.path = paste(db.dir, the.one, sep = "/")
   
+  #---------------------------------
+  # check to see if this version of the db already exists as sqlite db
+  tmp = substr(list.files(path = data.dir, pattern = ".sqlite3"), 7, 19)
   
-  # today = format(Sys.Date(), "%m_%d_%Y")
-  
+  if(length(tmp) > 0){  # if it exists
+    if(the.one.date == tmp){ # if this version matches the one on the M
+      return(message("MD: Database is already up to date."))
+    }
+  }
+
+  #-----------------------------------------------------------------------------#
   # the "AccessExporter" takes 3 arguments. 1) Path to the access database, 2) the
   # name of the table that you want, 3) path & name of the file to write (table to
   # export), this can be either a .csv or .txt
@@ -80,6 +83,14 @@ update.db = function(){
                file.name.2))
   
   #-----------------------------------------------------------------------------#
+  # check if sqlite db is in the data folder and delete before making a new one
+  
+  if(length(list.files(path = data.dir, pattern = ".sqlite3")) > 0){
+    old.db = paste(data.dir, list.files(path = data.dir, pattern = ".sqlite3"), sep = "/")
+    file.remove(old.db)
+  }
+  
+  #---------------------------------
   # create the new db
   
   samp = read.table(file = file.name, header = T, sep = ",")
